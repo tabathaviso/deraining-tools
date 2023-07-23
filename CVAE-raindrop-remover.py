@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 def load_dataset():
     import glob
     from tqdm import tqdm
@@ -81,7 +80,6 @@ class Sampling(tf.keras.layers.Layer):
 # connect encoder + decoder with sampling layer, create CVAE model
 latent_variable = Sampling()([encoder.output[:, :latent_dim], encoder.output[:, latent_dim:]])
 cvae = tf.keras.Model(inputs=encoder.input, outputs=decoder(latent_variable))
-cvae.summary()
 
 
 # loss functions
@@ -105,8 +103,6 @@ cvae.compile(optimizer=optimizer, loss=cvae_loss)
 batch_size = 64
 epochs = 20
 history = cvae.fit(rainy_images, clean_images, batch_size=batch_size, epochs=epochs)
-
-cvae.save('./')
 
 # remove raindrops from images using trained model
 def derain(image):
