@@ -2,13 +2,42 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+
+def load_dataset():
+    import glob
+    from tqdm import tqdm
+    
+    input_glob = sorted(glob.glob('train/data/*.png'))
+    ground_glob = sorted(glob.glob('train/gt/*.png'))
+    
+    input_images = []
+    ground_truth = []
+
+    for i in tqdm(input_glob):
+        img = tf.keras.utils.load_img(i, target_size=(480, 720, 3))
+        img = tf.keras.utils.img_to_array(img)
+        img = img/255.
+        input_images.append(img)
+    
+    for j in tqdm(ground_glob):
+        img = tf.keras.utils.load_img(j, target_size=(480, 720, 3))
+        img = tf.keras.utils.img_to_array(img)
+        img = img/255.
+        ground_truth.append(img)
+
+    input_images = np.array(input_images)
+    ground_truth = np.array(ground_truth)
+
+    return input_images, ground_truth
+
 # import
 rainy_images, clean_images = load_dataset()
-input_shape = (720, 480, 3)
+input_shape = (480, 720, 3)
 
 # preprocessing, normalize pixel values to [0, 1]
-rainy_images = rainy_images.astype('float32') / 255.0
-clean_images = clean_images.astype('float32') / 255.0
+# rainy_images = rainy_images.astype('float32') / 255.0
+# clean_images = clean_images.astype('float32') / 255.0
 
 # CVAE architecture
 latent_dim = 128
@@ -52,6 +81,7 @@ class Sampling(tf.keras.layers.Layer):
 # connect encoder + decoder with sampling layer, create CVAE model
 latent_variable = Sampling()([encoder.output[:, :latent_dim], encoder.output[:, latent_dim:]])
 cvae = tf.keras.Model(inputs=encoder.input, outputs=decoder(latent_variable))
+cvae.summary()
 
 
 # loss functions
@@ -75,6 +105,8 @@ cvae.compile(optimizer=optimizer, loss=cvae_loss)
 batch_size = 64
 epochs = 20
 history = cvae.fit(rainy_images, clean_images, batch_size=batch_size, epochs=epochs)
+
+cvae.save('./')
 
 # remove raindrops from images using trained model
 def derain(image):
