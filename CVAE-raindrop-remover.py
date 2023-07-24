@@ -4,14 +4,12 @@ from tensorflow import keras
 from keras import layers
 from keras.utils import load_img, img_to_array
 
-
 img_shape = (240, 360, 3)
 
 def load_dataset():
     import glob
     from tqdm import tqdm
-
-
+    
     input_glob = sorted(glob.glob('train/data/*.png'))
     ground_glob = sorted(glob.glob('train/gt/*.png'))
 
@@ -46,7 +44,7 @@ class Sampling(layers.Layer):
         return z_mean + tf.exp(0.5 * z_log_var) * epsilon
 
 # CVAE architecture
-latent_dim = 32
+latent_dim = 64
 
 encoder_inputs = keras.Input(shape=img_shape)
 x = layers.Conv2D(32, (3, 3), activation='relu', strides=(2, 2), padding='same')(encoder_inputs)
@@ -61,7 +59,6 @@ z_log_var = layers.Dense(latent_dim, name="z_log_var")(x)
 z = Sampling()([z_mean, z_log_var])
 encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
 # encoder.summary()
-
 
 latent_inputs = keras.Input(shape=(latent_dim,))
 x = layers.Dense(15 * 23 * 256, activation='relu')(latent_inputs)
@@ -138,7 +135,6 @@ if __name__ == '__main__':
 
     # compile + train
     cvae.compile(optimizer=optimizer, run_eagerly=True)
-
 
     batch_size = 5
     epochs = 30
