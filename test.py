@@ -4,13 +4,13 @@ from keras.layers import Dense, Conv2D, MaxPool2D, UpSampling2D
 from keras.callbacks import EarlyStopping
 import numpy as np
 
-
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def load_dataset():
     import glob
     from tqdm import tqdm
 
-    input_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/data/*.png'))
-    ground_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/gt/*.png'))
+    input_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/train/data/*.png'))
+    ground_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/train/data/*.png'))
 
     input_images = []
     ground_truth = []

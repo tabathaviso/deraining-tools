@@ -7,8 +7,8 @@ def load_dataset():
     import glob
     from tqdm import tqdm
 
-    input_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/data/*.png'))
-    ground_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/gt/*.png'))
+    input_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/train/data/*.png'))
+    ground_glob = sorted(glob.glob('/home/nikesh/Downloads/CS539/train/train/gt/*.png'))
 
     input_images = []
     ground_truth = []
