@@ -64,8 +64,8 @@ encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
 
 
 latent_inputs = keras.Input(shape=(latent_dim,))
-x = layers.Dense(60 * 90 * 256, activation='relu')(latent_inputs)
-x = layers.Reshape((60, 90, 256))(x)
+x = layers.Dense(15 * 23 * 256, activation='relu')(latent_inputs)
+x = layers.Reshape((15, 23, 256))(x)
 x = layers.Conv2DTranspose(128, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
 x = layers.Conv2DTranspose(128, (3, 3), activation='relu', strides=(1, 1), padding='same')(x)
 x = layers.Conv2DTranspose(64, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
