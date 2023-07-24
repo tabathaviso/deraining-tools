@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 from keras.utils import load_img, img_to_array
+from keras.callbacks import LearningRateScheduler
 
 img_shape = (240, 360, 3)
 
@@ -122,20 +123,27 @@ class VAE(keras.Model):
         reconstruction = self.decoder(z)
         return reconstruction
 
+def learning_rate_schedule(epoch):
+    initial_lr = 0.001  # initial
+    if epoch < 10:
+        return initial_lr
+    else:
+        return initial_lr * tf.math.exp(0.1 * (10 - epoch))  # reduce learning rate exponentially after 10 epochs
+
 if __name__ == '__main__':
     cvae = VAE(encoder, decoder)
 
     rainy_images, clean_images = load_dataset()
 
     # optimization method
-    optimizer = tf.keras.optimizers.Adam()
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_schedule(0)) 
 
     # compile + train
     cvae.compile(optimizer=optimizer, run_eagerly=True)
-
+    lr_scheduler = LearningRateScheduler(learning_rate_schedule)
     batch_size = 5
     epochs = 30
-    history = cvae.fit((rainy_images, clean_images), batch_size=batch_size, epochs=epochs)
+    history = cvae.fit((rainy_images, clean_images), batch_size=batch_size, epochs=epochs, callbacks=[lr_scheduler])
 
     cvae.save_weights('my_model.h5')
 
