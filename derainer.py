@@ -1,35 +1,36 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
-from keras import layers
-from keras.utils import load_img, img_to_array
 from CVAE import *
-import matplotlib.pyplot as plt
 
+# Change this variable to wherever your test dataset is located. 
+# This follows the same format as the training dataset.
+TEST_DATASET_PATH = 'test_a'
 
-cvae = VAE(encoder, decoder)
+cvae = CVAE(encoder, decoder)
 
+# random input to ensure model is loaded
 dummy_input = np.random.rand(1, *img_shape).astype('float32')
 cvae(dummy_input)
 
-cvae.load_weights('./my_model.h5')
+# loading pretrained model
+cvae.load_weights('./good_model.h5')
+
+# loading test dataset
+test_rain, _ = load_dataset(TEST_DATASET_PATH)
 
 
-# remove raindrops from images using trained model
-def derain(image):
-    # preprocessing
-    image = img_to_array(image)
-    image = image / 255.
-    image = np.expand_dims(image, axis=0)
+#batch deraining
 
-    derained_image = cvae.predict(image)
+derained_images = cvae(test_rain)
 
-    return derained_image
+# Denormalizing image data
+derained_images = derained_images * 255
+derained_images = tf.cast(derained_images, tf.uint8)
 
-sample = load_img('train/data/0_rain.png', target_size=img_shape)
-label = load_img('train/gt/0_clean.png', target_size=img_shape)
+for i, output_img in enumerate(derained_images):
+    # Encode tensor to PNG
+    encoded_img = tf.image.encode_png(output_img)
 
+    # Write to file
+    tf.io.write_file(f'{TEST_DATASET_PATH}/prediction/{i}_prediction.png', encoded_img)
 
-derained_image = derain(sample)[0]
-
-plt.imsave('sample_derained.png', derained_image)
